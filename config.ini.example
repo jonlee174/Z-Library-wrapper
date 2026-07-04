@@ -1,0 +1,11 @@
+[credentials]
+email = you@example.com
+password = your_password
+
+[settings]
+; download_dir: leave blank to use your OS Downloads folder
+download_dir =
+; default number of results to fetch per search (1-100)
+default_count = 25
+; default file format filter: blank, PDF, EPUB, MOBI, ...
+default_format =

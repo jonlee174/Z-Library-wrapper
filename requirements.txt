@@ -1,0 +1,5 @@
+# Runtime
+zlibrary>=1.0.2
+
+# Build (dev only; not needed to run from source)
+pyinstaller>=6.0

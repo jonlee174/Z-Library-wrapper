@@ -1,0 +1,14 @@
+# Build artifacts
+build/
+dist/
+distc/
+buildc/
+*.spec.bak
+selftest_result.txt
+test.html
+__pycache__/
+*.pyc
+
+# Local config with real credentials — never commit
+config.ini
+/.claude
