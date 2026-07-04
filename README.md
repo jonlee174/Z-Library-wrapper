@@ -11,7 +11,7 @@ library (GPL-3.0).
 
 ## Quick start (run from source)
 
-You need **Python 3.10+**.
+You need **Python 3.9+** (works with the Python 3.9 that ships with macOS).
 
 ```bash
 pip install -r requirements.txt
