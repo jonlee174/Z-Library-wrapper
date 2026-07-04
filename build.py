@@ -71,6 +71,16 @@ def ensure_icons() -> None:
         print(f"(icon generation skipped: {exc})")
 
 
+def fix_zlibrary() -> None:
+    """Patch the installed zlibrary for Python 3.9 before PyInstaller analyses
+    it (PyInstaller imports the package at build time; on 3.9 the un-patched
+    source crashes the build). Idempotent; no-op if already compatible."""
+    try:
+        run([sys.executable, str(PACKAGING / "fix_zlibrary.py")])
+    except Exception as exc:  # noqa: BLE001
+        print(f"(zlibrary fix skipped: {exc})")
+
+
 def build_pyinstaller() -> None:
     """Build via PyInstaller.
 
@@ -127,6 +137,7 @@ def main() -> int:
 
     if args.clean:
         clean()
+    fix_zlibrary()   # make the installed zlibrary import cleanly on Python 3.9
     ensure_icons()
 
     if sys.platform == "win32":
