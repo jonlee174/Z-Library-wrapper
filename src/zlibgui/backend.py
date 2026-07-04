@@ -16,7 +16,7 @@ from typing import Optional
 
 import zlibrary
 
-from .net import use_threaded_resolver
+from .net import use_certifi_ca, use_threaded_resolver
 from .patches import apply_patches
 from .challenge import solve_cookies
 from .detail import parse_detail
@@ -48,6 +48,7 @@ class Backend:
         self._ready.wait(timeout=5)
 
     def _run_loop(self) -> None:
+        use_certifi_ca()         # trust certifi's CAs (fixes frozen-app SSL)
         use_threaded_resolver()  # must run before any aiohttp session is created
         apply_patches()          # fix library bugs before any search runs
         self._loop = asyncio.new_event_loop()

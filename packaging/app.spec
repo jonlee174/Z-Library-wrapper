@@ -13,7 +13,7 @@ Output:
 import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 APP_NAME = "ZLibraryWrapper"
 ROOT = Path(SPECPATH).resolve().parent
@@ -39,11 +39,15 @@ hidden = (
     + ["aiohttp_socks", "python_socks", "aiodns", "bs4", "lxml", "ujson", "certifi"]
 )
 
+# Bundle certifi's CA bundle (cacert.pem) so HTTPS verification works in the
+# frozen app, whose OpenSSL has no system CA path (esp. on macOS).
+datas = collect_data_files("certifi")
+
 a = Analysis(
     [str(SRC / "run.py")],
     pathex=[str(SRC)],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=hidden,
     hookspath=[],
     runtime_hooks=[],

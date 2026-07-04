@@ -9,6 +9,7 @@ queue that we drain with root.after().
 from __future__ import annotations
 
 import queue
+import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -49,11 +50,33 @@ class App(tk.Tk):
         self.after(POLL_MS, self._poll_queue)
         self._set_status("Logging in…")
 
+        # macOS Tk often opens the window blank until it's nudged; force a
+        # geometry refresh + redraw once the event loop is running so all
+        # widgets paint immediately.
+        self.after(0, self._force_redraw)
+
+    def _force_redraw(self) -> None:
+        try:
+            self.update_idletasks()
+            # A 1px resize wiggle reliably triggers a full repaint on macOS Tk.
+            w, h = self.winfo_width(), self.winfo_height()
+            if w > 1 and h > 1:
+                self.geometry(f"{w + 1}x{h + 1}")
+                self.after(30, lambda: self.geometry(f"{w}x{h}"))
+            self.lift()
+            self.focus_force()
+        except Exception:  # noqa: BLE001 - cosmetic only
+            pass
+
     # -------------------------------------------------------------- construction
     def _build_style(self) -> None:
         style = ttk.Style(self)
-        # 'clam' is available on all platforms and themes cleanly.
-        if "clam" in style.theme_names():
+        themes = style.theme_names()
+        # On macOS, keep the native 'aqua' theme — forcing 'clam' there can
+        # leave the window blank. Use 'clam' only off-macOS where it looks best.
+        if sys.platform == "darwin" and "aqua" in themes:
+            style.theme_use("aqua")
+        elif "clam" in themes:
             style.theme_use("clam")
         style.configure("Search.TButton", padding=6)
 
