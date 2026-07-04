@@ -19,8 +19,34 @@ import sys
 
 
 def _booklists_path():
-    import zlibrary.booklists as bl  # noqa: import to locate the file
-    return bl.__file__
+    """Locate zlibrary/booklists.py WITHOUT importing zlibrary.
+
+    Importing it would run the very `EnumMeta | type` annotation that crashes on
+    Python 3.9 — the thing we're here to fix. So we find the package directory
+    via importlib's finder (which doesn't execute the module) and fall back to
+    scanning sys.path.
+    """
+    import importlib.util
+    import os
+
+    spec = importlib.util.find_spec("zlibrary")
+    if spec is not None:
+        # Prefer submodule_search_locations (package dir); else derive from origin.
+        locs = list(spec.submodule_search_locations or [])
+        if not locs and spec.origin:
+            locs = [os.path.dirname(spec.origin)]
+        for loc in locs:
+            candidate = os.path.join(loc, "booklists.py")
+            if os.path.isfile(candidate):
+                return candidate
+
+    # Last-resort scan of sys.path entries.
+    for entry in sys.path:
+        candidate = os.path.join(entry, "zlibrary", "booklists.py")
+        if os.path.isfile(candidate):
+            return candidate
+
+    raise FileNotFoundError("zlibrary/booklists.py not found on sys.path")
 
 
 def apply() -> bool:
